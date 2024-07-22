@@ -6,6 +6,7 @@
 void StageScene::Init()
 {
 	enemy[0] = new Stage1Mob();
+	enemyHP = 7;
 
 	enemy[0]->Initialize({
 			{100, 200},
@@ -13,8 +14,17 @@ void StageScene::Init()
 			{100, 328},
 			{228, 328}
 		},
-		{ 4.0f, 4.0f }, 7);
+		{ 4.0f, 4.0f }, enemyHP);
 	player = new Player();
+	inputHandler_->AssignMoveRightCommand2PressKeyD();
+	inputHandler_->AssignMoveLeftCommand2PressKeyA();
+	inputHandler_->AssignMoveUpCommand2PressKeyW();
+	inputHandler_->AssignMoveDownCommand2PressKeyS();
+	inputHandler_->AssignMoveDownLeftCommand2PressKeySA();
+	inputHandler_->AssignMoveDownRightCommand2PressKeySD();
+	inputHandler_->AssignMoveUpLeftCommand2PressKeyWA();
+	inputHandler_->AssignMoveUpRightCommand2PressKeyWD();
+	inputHandler_->AssignShotCommand2PressKeySpace();
 	player->Initialize();
 }
 
@@ -25,13 +35,26 @@ StageScene::~StageScene()
 	{
 		delete enemy[i];
 	}
-	
+	delete iCommand_;
+	delete iCommandShoot_;
+	delete inputHandler_;
 }
 
 void StageScene::Update(char* keys, char* preKeys)
 {
+	iCommand_ = inputHandler_->HandleInput();
+	iCommandShoot_ = inputHandler_->HandleShootInput();
+	if (this->iCommand_)
+	{
+		iCommand_->Exec(*player);
+	}
 
-	player->Update(keys, preKeys);
+	if (this->iCommandShoot_) 
+	{
+		iCommandShoot_->Exec(*player);
+	}
+
+	player->Update();
 	for (int i = 0; i < MAXENEMIES; i++) {
 
 		enemy[i]->Update();
@@ -40,6 +63,10 @@ void StageScene::Update(char* keys, char* preKeys)
 	CollisionPlayerEnemy();
 	CollisionBulletEnemy();
 	CollisionEnemyBulletPlayer();
+	//StageClear();
+	ChangeScenes();
+
+
 }
 
 void StageScene::CollisionBulletEnemy()
@@ -52,6 +79,7 @@ void StageScene::CollisionBulletEnemy()
 				{ 10, 10 }, { enemy[j]->GetSize().x, enemy[j]->GetSize().y }) &&
 				!enemy[j]->GetIsDead()) {
 				enemy[j]->SetIsDamaged(true);
+				enemyHP--;
 				player->SetBulletY(-40, i);
 			}
 		}
@@ -67,19 +95,45 @@ void StageScene::CollisionPlayerEnemy()
 			playerDamageCooldown_ == 0 && !enemy[i]->GetIsDead()) {
 			player->SetIsDamaged(true);
 		}
-		if (player->GetIsDamaged()) {
-			playerIFrames = true;
-		}
 	}
-	if (playerIFrames) {
-		playerDamageCooldown_++;
+}
+
+void StageScene::StageClear()
+{
+	sceneNo = CLEAR;
+	Init();
+}
+
+void StageScene::StageFailed()
+{
+	sceneNo = TITLE;
+	Init();
+}
+
+void StageScene::ChangeScenes()
+{
+
+	if (enemyHP <= 0) 
+	{
+		pfunc = &StageScene::StageClear;
+		(this->*pfunc)();
+
 	}
 
-	if (playerDamageCooldown_ >= 60) {
-		playerIFrames = false;
-		playerDamageCooldown_ = 0;
-		player->SetIsDamaged(false);
+	if (player->GetPlayerIsDead())
+	{
+		pfunc = &StageScene::StageFailed;
+		(this->*pfunc)();
+		SetTimeout(2000);
+
 	}
+
+}
+
+void StageScene::SetTimeout(/*PFunc counter, */int second)
+{
+	Sleep(second); //how many seconds we wait
+	//counter(&second);
 }
 
 void StageScene::CollisionEnemyBulletPlayer()

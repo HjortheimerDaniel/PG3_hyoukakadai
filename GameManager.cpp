@@ -5,8 +5,8 @@ GameManager::GameManager()
 	sceneArr_[TITLE] = std::make_unique<TitleScene>();
 	sceneArr_[STAGE] = std::make_unique<StageScene>();
 	sceneArr_[CLEAR] = std::make_unique<ClearScene>();
-
 	currentSceneNo_ = TITLE;
+
 }
 
 GameManager::~GameManager()
@@ -15,6 +15,8 @@ GameManager::~GameManager()
 
 int GameManager::Run(char* keys, char* preKeys)
 {
+	
+
 	while (Novice::ProcessMessage() == 0)
 	{
 

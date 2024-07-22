@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #define MAXENEMIES 1
 
 struct Vector2 {
@@ -38,10 +40,13 @@ struct EnemyStruct {
 
 struct Bullet
 {
-	Vector2 pos[10];
+	//Vector2 pos[10];
+	std::vector<Vector2> pos;
 	int size;
-	bool isShot[10];
-	int speed[10];
+	//bool isShot[10];
+	std::vector<bool> isShot;
+	//int speed[10];
+	std::vector<int> speed;
 	int handle;
 	int CD;
 };

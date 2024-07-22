@@ -2,11 +2,16 @@
 #include "IScene.h"
 #include "Player.h"
 #include "Stage1Mob.h"
+#include <time.h>
+#include <Windows.h>
+#include "InputHandler.h"
+#include "Command.h"
 
 
 class StageScene : public IScene
 {
 public:
+	typedef void(StageScene::* PFunc)();
 
 	void Init() override;
 	~StageScene();
@@ -15,6 +20,14 @@ public:
 	void CollisionBulletEnemy();
 
 	void CollisionPlayerEnemy();
+
+	void StageClear();
+
+	void StageFailed();
+
+	void ChangeScenes();
+
+	void SetTimeout(/*PFunc counter,*/ int second);
 
 	void CollisionEnemyBulletPlayer();
 
@@ -28,6 +41,12 @@ private:
 	Player* player;
 	Enemy* enemy[MAXENEMIES];
 	int playerDamageCooldown_;
+	int enemyHP;
 	bool playerIFrames;
+	PFunc pfunc = nullptr;
+	PFunc counter;
+	InputHandler* inputHandler_ = new InputHandler();
+	ICommand* iCommand_ = nullptr;
+	ICommand* iCommandShoot_ = nullptr;
 };
 

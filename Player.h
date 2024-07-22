@@ -1,6 +1,5 @@
 #pragma once
 #include "Struct.h"
-//#include "PlayerBullet.h"
 
 class Player
 {
@@ -12,9 +11,25 @@ public:
 
 	~Player();
 
-	void Update(char* keys, char* preKeys);
+	void MoveRight();
 
-	void Movement(char* keys, char* preKeys);
+	void MoveLeft();
+
+	void MoveUp();
+
+	void MoveDown();
+
+	void MoveUpRight();
+
+	void MoveUpLeft();
+
+	void MoveDownRight();
+
+	void MoveDownLeft();
+
+	void Update();
+
+	void UpdateBullet();
 
 	void SetPos(Quad pos) { player_.pos = pos; };
 
@@ -32,7 +47,7 @@ public:
 
 	void HitBox();
 
-	Vector2* GetBulletPos() { return bullet_.pos; };
+	std::vector<Vector2> GetBulletPos() { return bullet_.pos; };
 
 	int GetBulletSize() { return bullet_.size; };
 
@@ -42,10 +57,11 @@ public:
 
 	void SetIsShot(bool shot, int index) { bullet_.isShot[index] = shot; };
 
-	bool* GetIsShot() { return bullet_.isShot; };
+	std::vector<bool> GetIsShot() { return bullet_.isShot; };
 
+	bool GetPlayerIsDead() { return player_.isDead; };
 
-	void Shoot(char* keys, char* preKeys);
+	void Shoot();
 
 	void Draw();
 
@@ -56,5 +72,8 @@ protected:
 	const int adjustHitboxLeftX = 30;
 	const int adjustHitboxRightX = 40;
 	const int adjustHitboxY = 30;
+	int size;
+	int shootCD;
+	bool canShoot;
 };
 

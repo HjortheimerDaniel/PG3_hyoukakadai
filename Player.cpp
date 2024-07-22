@@ -2,6 +2,8 @@
 #include "Novice.h"
 #define _USE_MATH_DEFINES_
 #include <math.h>
+#include <algorithm>
+#include <iostream>
 
 
 void Player::Initialize()
@@ -15,11 +17,20 @@ void Player::Initialize()
 	player_.size = { 128,128 };
 	player_.speed.x = 5;
 	player_.speed.y = 5;
+	player_.damagedTimer = 0;
 	player_.handle = Novice::LoadTexture("./Sprites/player.png");
+	player_.isDamaged = false;
+	player_.isDead = false;
 	player_.HP = 3;
 	bullet_.size = 20;
+	bullet_.isShot.resize(10);
+	bullet_.speed.resize(10);
+	bullet_.pos.resize(10);
+	size = 10;
+	shootCD = 0;
+	canShoot = true;
 	bullet_.handle = Novice::LoadTexture("./Sprites/bulletsmall.png");
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < size; i++) {
 
 		bullet_.speed[i] = 8;
 		bullet_.pos[i].x = -100;
@@ -36,37 +47,109 @@ Player::~Player()
 {
 }
 
-void Player::Update(char* keys, char* preKeys)
+void Player::MoveRight()
 {
-	Movement(keys, preKeys);
-	Shoot(keys, preKeys);
-	PlayerDamaged();
-	HitBox();
+	float normalizeSpeed =
+		sqrtf(player_.speed.x * player_.speed.x);
+	if (normalizeSpeed != 0.0f) {
+
+		player_.speed.x /= normalizeSpeed;
+	}
+
+
+	this->player_.pos.UL.x += this->player_.speed.x * 5;
+	this->player_.pos.UR.x += this->player_.speed.x * 5;
+	this->player_.pos.LR.x += this->player_.speed.x * 5;
+	this->player_.pos.LL.x += this->player_.speed.x * 5;
+
+
 }
 
-void Player::Movement(char* keys, char* preKeys)
+void Player::MoveLeft()
 {
-	player_.speed.x = 0.0f;
-	player_.speed.y = 0.0f;
+	float normalizeSpeed =
+		sqrtf(player_.speed.x * player_.speed.x);
+	if (normalizeSpeed != 0.0f) {
 
-	if ((keys[DIK_D] || keys[DIK_RIGHT]) && (preKeys[DIK_D] || preKeys[DIK_RIGHT]) && player_.pos.UR.x <= 1140 && !keys[DIK_A] &&
-		!preKeys[DIK_A]) {
-		player_.speed.x = +5;
+		player_.speed.x /= normalizeSpeed;
 	}
 
-	if ((keys[DIK_A] || keys[DIK_LEFT]) && (preKeys[DIK_A] || preKeys[DIK_LEFT]) && player_.pos.UL.x >= 0 && !keys[DIK_D] && !preKeys[DIK_D]) {
-		player_.speed.x = -5;
+	this->player_.pos.UL.x -= this->player_.speed.x * 5;
+	this->player_.pos.UR.x -= this->player_.speed.x * 5;
+	this->player_.pos.LR.x -= this->player_.speed.x * 5;
+	this->player_.pos.LL.x -= this->player_.speed.x * 5;
+}
+
+void Player::MoveUp()
+{
+	float normalizeSpeed =
+		sqrtf(player_.speed.y * player_.speed.y);
+	if (normalizeSpeed != 0.0f) {
+
+		player_.speed.y /= normalizeSpeed;
 	}
 
-	if ((keys[DIK_S] || keys[DIK_DOWN]) && (preKeys[DIK_S] || preKeys[DIK_DOWN]) && player_.pos.LL.y <= 720 && !keys[DIK_S] && !preKeys[DIK_S]) {
-		player_.speed.y = -5;
+	this->player_.pos.UL.y -= this->player_.speed.y * 5;
+	this->player_.pos.UR.y -= this->player_.speed.y * 5;
+	this->player_.pos.LR.y -= this->player_.speed.y * 5;
+	this->player_.pos.LL.y -= this->player_.speed.y * 5;
+}
+
+void Player::MoveDown()
+{
+	float normalizeSpeed =
+		sqrtf(player_.speed.y * player_.speed.y);
+	if (normalizeSpeed != 0.0f) {
+		
+		player_.speed.y /= normalizeSpeed;
 	}
 
-	if ((keys[DIK_W] || keys[DIK_UP]) && (preKeys[DIK_W] || preKeys[DIK_UP]) && player_.pos.LL.y <= 720 && !keys[DIK_W] && !preKeys[DIK_W]) {
-		player_.speed.y = -5;
-	}
-	
+	this->player_.pos.UL.y += this->player_.speed.y * 5;
+	this->player_.pos.UR.y += this->player_.speed.y * 5;
+	this->player_.pos.LR.y += this->player_.speed.y * 5;
+	this->player_.pos.LL.y += this->player_.speed.y * 5;
+}
 
+void Player::MoveUpRight()
+{
+	float normalizeSpeed =
+		sqrtf(player_.speed.x * player_.speed.x + player_.speed.y * player_.speed.y);
+	if (normalizeSpeed != 0.0f) {
+		player_.speed.x /= normalizeSpeed;
+		player_.speed.y /= normalizeSpeed;
+	}
+
+	player_.pos.UL.x += player_.speed.x * 5;
+	player_.pos.UR.x += player_.speed.x * 5;
+	player_.pos.LL.x += player_.speed.x * 5;
+	player_.pos.LR.x += player_.speed.x * 5;
+	player_.pos.UL.y -= player_.speed.y * 5;
+	player_.pos.UR.y -= player_.speed.y * 5;
+	player_.pos.LL.y -= player_.speed.y * 5;
+	player_.pos.LR.y -= player_.speed.y * 5;
+}
+
+void Player::MoveUpLeft()
+{
+	float normalizeSpeed =
+		sqrtf(player_.speed.x * player_.speed.x + player_.speed.y * player_.speed.y);
+	if (normalizeSpeed != 0.0f) {
+		player_.speed.x /= normalizeSpeed;
+		player_.speed.y /= normalizeSpeed;
+	}
+
+	player_.pos.UL.x -= player_.speed.x * 5;
+	player_.pos.UR.x -= player_.speed.x * 5;
+	player_.pos.LL.x -= player_.speed.x * 5;
+	player_.pos.LR.x -= player_.speed.x * 5;
+	player_.pos.UL.y -= player_.speed.y * 5;
+	player_.pos.UR.y -= player_.speed.y * 5;
+	player_.pos.LL.y -= player_.speed.y * 5;
+	player_.pos.LR.y -= player_.speed.y * 5;
+}
+
+void Player::MoveDownRight()
+{
 	float normalizeSpeed =
 		sqrtf(player_.speed.x * player_.speed.x + player_.speed.y * player_.speed.y);
 	if (normalizeSpeed != 0.0f) {
@@ -82,7 +165,58 @@ void Player::Movement(char* keys, char* preKeys)
 	player_.pos.UR.y += player_.speed.y * 5;
 	player_.pos.LL.y += player_.speed.y * 5;
 	player_.pos.LR.y += player_.speed.y * 5;
+}
 
+void Player::MoveDownLeft()
+{
+	float normalizeSpeed =
+		sqrtf(player_.speed.x * player_.speed.x + player_.speed.y * player_.speed.y);
+	if (normalizeSpeed != 0.0f) {
+		player_.speed.x /= normalizeSpeed;
+		player_.speed.y /= normalizeSpeed;
+	}
+
+	player_.pos.UL.x -= player_.speed.x * 5;
+	player_.pos.UR.x -= player_.speed.x * 5;
+	player_.pos.LL.x -= player_.speed.x * 5;
+	player_.pos.LR.x -= player_.speed.x * 5;
+	player_.pos.UL.y += player_.speed.y * 5;
+	player_.pos.UR.y += player_.speed.y * 5;
+	player_.pos.LL.y += player_.speed.y * 5;
+	player_.pos.LR.y += player_.speed.y * 5;
+}
+
+void Player::Update()
+{
+	//Movement(keys, preKeys);
+	//Shoot();
+	PlayerDamaged();
+	HitBox();
+	UpdateBullet();
+}
+
+void Player::UpdateBullet()
+{
+	for (int i = 0; i < 10; i++) {
+
+		if (bullet_.isShot[i]) {
+			bullet_.pos[i].y -= bullet_.speed[i];
+		}
+
+		if (bullet_.pos[i].y <= -30) {
+			bullet_.isShot[i] = false;
+		}
+	}
+	if (!canShoot) 
+	{
+		shootCD++;
+	}
+
+	if (shootCD >= 10) 
+	{
+		canShoot = true;
+		shootCD = 0;
+	}
 }
 
 void Player::PlayerDamaged()
@@ -90,8 +224,10 @@ void Player::PlayerDamaged()
 	if (player_.isDamaged) {
 		player_.damagedTimer++;
 		player_.color = RED;
+		
 	}
 	else {
+
 		player_.color = WHITE;
 	}
 
@@ -101,6 +237,7 @@ void Player::PlayerDamaged()
 
 	if (player_.damagedTimer >= 60) {
 		player_.damagedTimer = 0;
+		player_.isDamaged = false;
 	}
 
 	if (player_.HP <= 0) {
@@ -120,37 +257,33 @@ void Player::HitBox()
 	player_.hitbox.LR.y = player_.pos.LR.y - adjustHitboxY;
 }
 
-void Player::Shoot(char* keys, char* preKeys)
+void Player::Shoot()
 {
 	for (int i = 0; i < 10; i++) {
 
-		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE] && !bullet_.isShot[i]) {
+		if (!bullet_.isShot[i] && canShoot) {
 			bullet_.isShot[i] = true;
+			canShoot = false;
 			bullet_.pos[i].x = (player_.pos.UL.x + 64);
 			bullet_.pos[i].y = player_.pos.UL.y - 30;
+			
 			break;
 		}
 	}
 
-	for (int i = 0; i < 10; i++) {
 
-		if (bullet_.isShot[i]) {
-			bullet_.pos[i].y -= bullet_.speed[i];
-		}
-
-		if (bullet_.pos[i].y <= -30) {
-			bullet_.isShot[i] = false;
-		}
-	}
+	
 }
 
 void Player::Draw()
 {
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < size; i++) {
 		if (bullet_.isShot[i]) {
 
 			Novice::DrawSprite((int)bullet_.pos[i].x, (int)bullet_.pos[i].y, bullet_.handle, 1, 1, 0.0f, WHITE);
 		}
 	}
 	Novice::DrawSprite((int)player_.pos.UL.x, (int)player_.pos.UL.y, player_.handle, 1, 1, 0.0f, player_.color);
+	Novice::ScreenPrintf(0, 200, "damaged %d", player_.damagedTimer);
+	Novice::ScreenPrintf(0, 250, "damaged %d", player_.HP);
 }
