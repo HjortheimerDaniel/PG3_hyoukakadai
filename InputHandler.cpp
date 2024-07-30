@@ -3,6 +3,22 @@
 
 ICommand* InputHandler::HandleInput()
 {
+    if (Novice::CheckHitKey(DIK_W) && Novice::CheckHitKey(DIK_D))
+    {
+        return pressKeyWD_;
+    }
+    if (Novice::CheckHitKey(DIK_W) && Novice::CheckHitKey(DIK_A))
+    {
+        return pressKeyWA_;
+    }
+    if (Novice::CheckHitKey(DIK_S) && Novice::CheckHitKey(DIK_D))
+    {
+        return pressKeySD_;
+    }
+    if (Novice::CheckHitKey(DIK_S) && Novice::CheckHitKey(DIK_A))
+    {
+        return pressKeySA_;
+    }
 
     if (Novice::CheckHitKey(DIK_D))
     {
@@ -22,27 +38,9 @@ ICommand* InputHandler::HandleInput()
         return pressKeyS_;
     }
 
-    if (Novice::CheckHitKey(DIK_W) && Novice::CheckHitKey(DIK_D))
-    {
-        return pressKeyWD_;
-    }
-    if (Novice::CheckHitKey(DIK_W) && Novice::CheckHitKey(DIK_A))
-    {
-        return pressKeyWA_;
-    }
-    if (Novice::CheckHitKey(DIK_S) && Novice::CheckHitKey(DIK_D))
-    {
-        return pressKeySD_;
-    }
-    if (Novice::CheckHitKey(DIK_S) && Novice::CheckHitKey(DIK_A))
-    {
-        return pressKeySA_;
-    }
+   
 
-    if (Novice::CheckHitKey(DIK_SPACE))
-    {
-        return pressKeySpace_;
-    }
+  
     
 
     return nullptr;
@@ -50,7 +48,10 @@ ICommand* InputHandler::HandleInput()
 
 ICommand* InputHandler::HandleShootInput()
 {
-   
+    if (Novice::CheckHitKey(DIK_SPACE))
+    {
+        return pressKeySpace_;
+    }
 
     return nullptr;
 }
