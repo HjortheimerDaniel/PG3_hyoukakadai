@@ -5,6 +5,8 @@
 
 void StageScene::Init()
 {
+	titleSprite = Novice::LoadTexture("./Sprites/gameBG.png");
+
 	enemy[0] = new Stage1Mob();
 	enemyHP = 7;
 
@@ -124,16 +126,15 @@ void StageScene::ChangeScenes()
 	{
 		pfunc = &StageScene::StageFailed;
 		(this->*pfunc)();
-		SetTimeout(2000);
+		SetTimeout(700);
 
 	}
-
 }
 
-void StageScene::SetTimeout(/*PFunc counter, */int second)
+void StageScene::SetTimeout(int second)
 {
 	Sleep(second); //how many seconds we wait
-	//counter(&second);
+	
 }
 
 void StageScene::CollisionEnemyBulletPlayer()
@@ -172,13 +173,15 @@ void StageScene::Restart(char* keys, char* preKeys)
 
 void StageScene::Draw()
 {
+	Novice::DrawSprite(0, 0, titleSprite, 1, 1, 0.0f, WHITE);
+
 	player->Draw();
 	for (int i = 0; i < MAXENEMIES; i++)
 	{
 		enemy[i]->Draw();
 
 	}
-	Novice::ScreenPrintf(0, 0, "A || < = LEFT");
-	Novice::ScreenPrintf(0, 20, "D || > = RIGHT");
-	Novice::ScreenPrintf(0, 40, "SPACE = SHOOT");
+	//Novice::ScreenPrintf(0, 0, "A || < = LEFT");
+	//Novice::ScreenPrintf(0, 20, "D || > = RIGHT");
+	//Novice::ScreenPrintf(0, 40, "SPACE = SHOOT");
 }

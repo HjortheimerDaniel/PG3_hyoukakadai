@@ -284,6 +284,5 @@ void Player::Draw()
 		}
 	}
 	Novice::DrawSprite((int)player_.pos.UL.x, (int)player_.pos.UL.y, player_.handle, 1, 1, 0.0f, player_.color);
-	Novice::ScreenPrintf(0, 200, "damaged %d", player_.damagedTimer);
-	Novice::ScreenPrintf(0, 250, "damaged %d", player_.HP);
+
 }

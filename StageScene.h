@@ -11,6 +11,7 @@
 class StageScene : public IScene
 {
 public:
+
 	typedef void(StageScene::* PFunc)();
 
 	void Init() override;
@@ -27,7 +28,7 @@ public:
 
 	void ChangeScenes();
 
-	void SetTimeout(/*PFunc counter,*/ int second);
+	void SetTimeout(int second);
 
 	void CollisionEnemyBulletPlayer();
 
@@ -44,9 +45,10 @@ private:
 	int enemyHP;
 	bool playerIFrames;
 	PFunc pfunc = nullptr;
-	PFunc counter;
 	InputHandler* inputHandler_ = new InputHandler();
 	ICommand* iCommand_ = nullptr;
 	ICommand* iCommandShoot_ = nullptr;
+	int titleSprite;
+
 };
 

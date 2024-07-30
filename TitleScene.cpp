@@ -3,7 +3,9 @@
 
 void TitleScene::Init()
 {
-
+	titleWidth = 0;
+	titleSprite = Novice::LoadTexture("./Sprites/title.png");
+	timer = 0;
 }
 
 void TitleScene::Update(char* keys, char* preKeys)
@@ -12,11 +14,29 @@ void TitleScene::Update(char* keys, char* preKeys)
 	{
 		sceneNo = STAGE;
 	}
+	TitleAnimation();
+}
+
+void TitleScene::TitleAnimation()
+{
+	timer++;
+
+	if (timer <= 30) 
+	{
+		titleWidth = 0;
+	}
+	else 
+	{
+		titleWidth = -1280;
+	}
+
+	if (timer >= 60) 
+	{
+		timer = 0;
+	}
 }
 
 void TitleScene::Draw()
 {
-	Novice::ScreenPrintf(600, 300, "TITLE");
-	Novice::ScreenPrintf(527, 330, "'ENTER KEY' TO START");
-
+	Novice::DrawSprite(titleWidth, 0, titleSprite, 1, 1, 0.0f, WHITE);
 }
