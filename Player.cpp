@@ -188,8 +188,6 @@ void Player::MoveDownLeft()
 
 void Player::Update()
 {
-	//Movement(keys, preKeys);
-	//Shoot();
 	PlayerDamaged();
 	HitBox();
 	UpdateBullet();

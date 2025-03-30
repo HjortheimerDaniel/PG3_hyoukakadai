@@ -37,12 +37,6 @@ ICommand* InputHandler::HandleInput()
     {
         return pressKeyS_;
     }
-
-   
-
-  
-    
-
     return nullptr;
 }
 
